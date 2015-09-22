@@ -342,7 +342,7 @@ func (c *Conn) serve() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Sprintf("gocql: panic in conn.server() %v", r)
+			err = fmt.Errorf("gocql: panic in conn.server() %v", r)
 			c.closeWithError(err)
 		}
 	}()
@@ -403,8 +403,8 @@ func (c *Conn) recv() error {
 	}
 
 	call := &c.calls[head.stream]
-	if call == nil {
-		return fmt.Errorf("gocql: error on disappearing stream %d: %v", head.stream, frame)
+	if call == nil || call.framer == nil {
+		return fmt.Errorf("gocql: error on disappearing stream %d", head.stream)
 	}
 	err = call.framer.readFrame(&head)
 	if err != nil {
