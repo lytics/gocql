@@ -340,6 +340,13 @@ func (c *Conn) serve() {
 		err error
 	)
 
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Sprintf("gocql: panic in conn.server() %v", r)
+			c.closeWithError(err)
+		}
+	}()
+
 	for {
 		err = c.recv()
 		if err != nil {
@@ -396,6 +403,9 @@ func (c *Conn) recv() error {
 	}
 
 	call := &c.calls[head.stream]
+	if call == nil {
+		return fmt.Errorf("gocql: error on disappearing stream %d: %v", head.stream, frame)
+	}
 	err = call.framer.readFrame(&head)
 	if err != nil {
 		// only net errors should cause the connection to be closed. Though
