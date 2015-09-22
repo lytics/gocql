@@ -15,7 +15,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/gocql/gocql/lru"
+	"github.com/lytics/gocql/lru"
 )
 
 // Session is the interface used by users to interact with the database.
